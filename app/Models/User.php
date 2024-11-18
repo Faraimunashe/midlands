@@ -55,4 +55,9 @@ class User extends Authenticatable implements LaratrustUser
     {
         return $this->hasOne(Mda::class);
     }
+
+    public function newUser()
+    {
+        return $this->hasOne(NewUser::class);
+    }
 }
