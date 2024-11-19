@@ -9,6 +9,12 @@ class Quarter extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = [
+        'name',
+        'start_date',
+        'end_date'
+    ];
+
     public function targets()
     {
         return $this->belongsToMany(Target::class, 'target_quarters');

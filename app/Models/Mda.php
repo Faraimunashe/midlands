@@ -9,6 +9,16 @@ class Mda extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = [
+        'department_id',
+        'user_id',
+        'title',
+        'firstnames',
+        'surname',
+        'phone',
+        'address',
+    ];
+
     public function department()
     {
         return $this->belongsTo(Department::class);

@@ -3,7 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\Role;
 use App\Models\User;
+use Exception;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
@@ -33,7 +35,10 @@ class UserController extends Controller
      */
     public function create()
     {
-        return inertia('Admin/User/CreatePage');
+        $roles = Role::all();
+        return inertia('Admin/User/CreatePage', [
+            'roles' => $roles
+        ]);
     }
 
     /**
@@ -44,7 +49,8 @@ class UserController extends Controller
         $request->validate([
             'name' => 'required|string|max:250',
             'email' => 'required|email|max:250|unique:users',
-            'password' => 'required|min:8|confirmed'
+            'password' => 'required|min:8|confirmed',
+            'role' => 'required|integer'
         ]);
 
         try {
@@ -56,8 +62,8 @@ class UserController extends Controller
 
             $user->addRole($request->role);
 
-            return back()->withErrors(['success' => 'User created successfully']);
-        }catch (\Exception $e) {
+            return back()->with(['success' => 'User created successfully']);
+        }catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -75,7 +81,19 @@ class UserController extends Controller
      */
     public function edit(string $id)
     {
-        return inertia('Admin/User/UpdatePage');
+
+        $user = User::with('roles')->find($id);
+        if(is_null($user))
+        {
+            return redirect()->back();
+        }
+
+
+        $roles = Role::all();
+        return inertia('Admin/User/UpdatePage', [
+            'user' => $user,
+            'roles' => $roles
+        ]);
     }
 
     /**
@@ -86,8 +104,10 @@ class UserController extends Controller
         $request->validate([
             'role' => 'required|integer',
             'name' => 'required|string|max:250',
-            'email' => 'required|email|max:250|unique:users'
+            'email' => 'required|email|max:250'
         ]);
+
+        //dd($request->role);
 
         try {
             $user = User::find($id)->update([
@@ -95,10 +115,13 @@ class UserController extends Controller
                 'email' => $request->email
             ]);
 
-            $user->addRole($request->role);
+            // $firstRole = $user->roles()->first();
+            // $user->removeRole($firstRole->id);
 
-            return back()->withErrors(['success' =>'User updated successfully!']);
-        }catch (\Exception $e) {
+            // $user->addRole($request->role);
+
+            return back()->with(['success' =>'User updated successfully!']);
+        }catch (Exception $e) {
             return back()->withErrors(['error' => $e->getMessage()]);
         }
     }
@@ -108,6 +131,15 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        try{
+
+            $user = User::findOrFail($id);
+            $user->delete();
+
+            return back()->withErrors(['success' => 'User deleted successfully.']);
+        }catch(Exception $e)
+        {
+            return back()->withErrors(['error' => 'Exception error']);
+        }
     }
 }

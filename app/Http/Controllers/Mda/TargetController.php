@@ -1,26 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mda;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 
-class AuthenticationController extends Controller
+class TargetController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-
-        if(Auth::user()->hasRole('admin'))
-        {
-            return redirect()->route('admin-dashboard');
-        }elseif(Auth::user()->hasRole('mda'))
-        {
-            return redirect()->route('targets.index');
-        }
-
+        return inertia("Mda/TargetsPage");
     }
 
     /**
@@ -28,7 +20,7 @@ class AuthenticationController extends Controller
      */
     public function create()
     {
-        //
+        return inertia("Mda/Target/CreatePage");
     }
 
     /**

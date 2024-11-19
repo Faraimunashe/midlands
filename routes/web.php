@@ -1,10 +1,14 @@
 <?php
 
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\DepartmentController;
+use App\Http\Controllers\Admin\MdaController;
+use App\Http\Controllers\Admin\QuarterController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\Mda\TargetController;
 use App\Http\Middleware\IsNewUser;
 use Illuminate\Support\Facades\Route;
 
@@ -30,4 +34,12 @@ Route::group(['middleware' => ['auth', 'role:admin']], function(){
     Route::get('/admin/dashboard', [DashboardController::class, 'index'])->name('admin-dashboard');
 
     Route::resource('users', UserController::class);
+    Route::resource('departments', DepartmentController::class);
+    Route::resource('quarters', QuarterController::class);
+    Route::resource('mdas', MdaController::class);
+});
+
+
+Route::group(['middleware' => ['auth', 'role:mda']], function(){
+    Route::resource('targets', TargetController::class);
 });

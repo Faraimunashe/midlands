@@ -1,7 +1,7 @@
 <template>
     <div class="bg-gray-100 font-sans leading-normal tracking-normal min-h-screen flex flex-col">
 
-      <NavBar :username="username" />
+      <NavBar :username="username" :role="role" />
 
       <div class="flex-1 pt-24 pb-6">
         <slot />
@@ -22,6 +22,9 @@ export default {
     computed: {
         username() {
             return this.$page.props.auth.user.name
+        },
+        role() {
+            return this.$page.props.auth.role.name
         }
     }
 };

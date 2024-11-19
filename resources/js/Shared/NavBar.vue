@@ -11,28 +11,48 @@
           </div>
 
           <!-- Navigation Links -->
-          <div class="hidden md:flex items-center space-x-4">
-            <Link href="/" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
-              <i class="fas fa-home"></i>
-              <span>Home</span>
-            </Link>
-            <Link href="/analytics" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
-              <i class="fas fa-chart-line"></i>
-              <span>Analytics</span>
-            </Link>
-            <Link href="/reports" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
-              <i class="fas fa-file-alt"></i>
-              <span>Reports</span>
-            </Link>
-            <Link href="/users" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
-              <i class="fas fa-user-alt"></i>
-              <span>Users</span>
-            </Link>
-          </div>
 
-          <!-- Settings, User Info, and Profile -->
+            <component v-if="role === 'admin'" class="hidden md:flex items-center space-x-4">
+                <Link href="/authentication" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </Link>
+                <Link href="/analytics" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </Link>
+                <Link href="/departments" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-building"></i>
+                    <span>Departments</span>
+                </Link>
+                <Link href="/mdas" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-user-tie"></i>
+                    <span>MDAs</span>
+                </Link>
+                <Link href="/quarters" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-calendar-alt"></i>
+                    <span>Quarters</span>
+                </Link>
+                <Link href="/users" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                <i class="fas fa-users"></i>
+                <span>Users</span>
+                </Link>
+            </component>
+
+            <component v-if="role === 'mda'" class="hidden md:flex items-center space-x-4">
+                <Link href="/authentication" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-home"></i>
+                    <span>Home</span>
+                </Link>
+                <Link href="/analytics" class="text-gray-800 hover:text-purple-600 flex items-center space-x-2">
+                    <i class="fas fa-chart-line"></i>
+                    <span>Analytics</span>
+                </Link>
+            </component>
+
+
           <div class="flex items-center space-x-4">
-            <!-- User Information Display -->
+
             <div class="text-right mr-2">
               <p class="text-gray-800 font-semibold">{{ username }}</p>
             </div>
@@ -71,7 +91,8 @@
   <script>
   export default {
     props:{
-        username: String
+        username: String,
+        role: String
     },
     data() {
       return {
