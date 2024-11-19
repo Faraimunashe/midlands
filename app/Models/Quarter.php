@@ -17,6 +17,8 @@ class Quarter extends Model
 
     public function targets()
     {
-        return $this->belongsToMany(Target::class, 'target_quarters');
+        return $this->belongsToMany(Target::class, 'target_quarters')
+            ->withTimestamps()
+            ->withTrashed();
     }
 }

@@ -3,7 +3,13 @@
 namespace App\Http\Controllers\Mda;
 
 use App\Http\Controllers\Controller;
+use App\Models\Mda;
+use App\Models\Quarter;
+use App\Models\Target;
+use DB;
+use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class TargetController extends Controller
 {
@@ -12,7 +18,10 @@ class TargetController extends Controller
      */
     public function index(Request $request)
     {
-        return inertia("Mda/TargetsPage");
+        $targets = Target::with('department')->where('author_id', Auth::id())->paginate(20);
+        return inertia("Mda/TargetsPage", [
+            'targets' => $targets
+        ]);
     }
 
     /**
@@ -20,7 +29,10 @@ class TargetController extends Controller
      */
     public function create()
     {
-        return inertia("Mda/Target/CreatePage");
+        $quarters = Quarter::all();
+        return inertia("Mda/Target/CreatePage", [
+            'quarters' => $quarters
+        ]);
     }
 
     /**
@@ -28,7 +40,45 @@ class TargetController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'title' => ['required', 'string'],
+            'description' => ['required', 'string'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+            'quarters' => ['required', 'array', 'min:1'],
+            'quarters.*' => ['exists:quarters,id'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+
+            $mda = Mda::where('user_id', Auth::id())->first();
+            if(is_null($mda))
+            {
+                return back()->withErrors(['error' => 'Could not find MDA department']);
+            }
+
+            $target = Target::create([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'] ?? null,
+                'department_id' => $mda->department_id,
+                'author_id' => auth()->id(),
+                'status' => 'In Progress',
+            ]);
+
+            // Attach the selected quarters to the target
+            $target->quarters()->sync($validated['quarters']);
+
+            DB::commit();
+
+            return back()->with(['success' => 'MDA was created successfully']);
+        }catch (Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
     }
 
     /**
