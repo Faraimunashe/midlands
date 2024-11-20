@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Mda;
 
 use App\Http\Controllers\Controller;
 use App\Models\Mda;
+use App\Models\Progress;
 use App\Models\Quarter;
 use App\Models\Target;
 use DB;
@@ -86,7 +87,9 @@ class TargetController extends Controller
      */
     public function show(string $id)
     {
-        //
+
+        $target = Target::with('quarters')->find($id);
+        return inertia("Mda/Target/ShowPage");
     }
 
     /**
@@ -94,7 +97,19 @@ class TargetController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        $quarters = Quarter::all();
+        $target = Target::with('quarters')->with('department')->find($id);
+
+        $last_progress = Progress::where('progressable_type', Target::class)
+        ->where('progressable_id', $target->id)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+        return inertia("Mda/Target/UpdatePage", [
+            'quarters' => $quarters,
+            'target' => $target,
+            'lastProgress' => $last_progress->progress_percent ?? 0
+        ]);
     }
 
     /**
@@ -102,7 +117,43 @@ class TargetController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        //
+
+        $validated = $request->validate([
+            'title' => ['required', 'string'],
+            'description' => ['required', 'string'],
+            'start_date' => ['required', 'date'],
+            'end_date' => ['required', 'date'],
+            'quarters' => ['required', 'array', 'min:1'],
+            'quarters.*' => ['exists:quarters,id'],
+        ]);
+
+        DB::beginTransaction();
+
+        try {
+            $target = Target::findOrFail($id);
+
+            $mda = Mda::where('user_id', Auth::id())->first();
+            if (is_null($mda)) {
+                return back()->withErrors(['error' => 'Could not find MDA department']);
+            }
+
+            $target->update([
+                'title' => $validated['title'],
+                'description' => $validated['description'],
+                'start_date' => $validated['start_date'],
+                'end_date' => $validated['end_date'] ?? null
+            ]);
+
+            $target->quarters()->sync($validated['quarters']);
+
+            DB::commit();
+
+            return back()->with(['success' => 'Target was updated successfully']);
+        } catch (Exception $e) {
+            DB::rollBack();
+            return back()->withErrors(['error' => $e->getMessage()]);
+        }
+
     }
 
     /**
