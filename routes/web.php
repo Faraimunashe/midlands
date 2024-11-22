@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\Auth\ChangePasswordController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\AuthenticationController;
+use App\Http\Controllers\Mda\ProgressController;
 use App\Http\Controllers\Mda\TargetController;
 use App\Http\Middleware\IsNewUser;
 use Illuminate\Support\Facades\Route;
@@ -42,4 +43,7 @@ Route::group(['middleware' => ['auth', 'role:admin']], function(){
 
 Route::group(['middleware' => ['auth', 'role:mda']], function(){
     Route::resource('targets', TargetController::class);
+
+    Route::get('targets/{id}/progress', [ProgressController::class, 'create']);
+    Route::post('targets/{id}/progress', [ProgressController::class, 'store']);
 });

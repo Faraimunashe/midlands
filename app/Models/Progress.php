@@ -9,6 +9,15 @@ class Progress extends Model
 {
     use SoftDeletes;
 
+    protected $fillable = [
+        'progressable_type',
+        'progressable_id',
+        'mda_id',
+        'progress_percent',
+        'progress_description',
+        'is_approved',
+    ];
+
     public function progressable()
     {
         return $this->morphTo();

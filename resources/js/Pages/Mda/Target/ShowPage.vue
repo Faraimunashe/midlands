@@ -23,12 +23,12 @@
                 v-if="dropdownOpen"
                 class="absolute right-0 mt-2 w-48 bg-white border border-gray-200 rounded-lg shadow-lg z-10"
                 >
-                <button
+                <Link :href="'/targets/'+target.id+'/progress'"
                     class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-200 flex items-center"
                 >
                     <i class="fas fa-sync-alt mr-2"></i>
                     Update Progress
-                </button>
+                </Link>
                 <button
                     class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-green-600 transition duration-200 flex items-center"
                 >
@@ -236,13 +236,12 @@
       <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
             <h3 class="text-2xl font-semibold text-gray-800 mb-6">Progress Trail</h3>
-            <button
-                @click="addEvidence"
+            <Link :href="'/targets/'+target.id+'/progress'"
                 class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-900 transition duration-200"
                 >
                 <i class="fas fa-plus mr-2"></i>
                 Update Progress
-            </button>
+            </Link>
         </div>
         <div class="divide-y divide-gray-200">
             <div v-for="entry in target.progress" :key="entry.id" class="py-4">
