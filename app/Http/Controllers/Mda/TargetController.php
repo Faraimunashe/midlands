@@ -88,8 +88,21 @@ class TargetController extends Controller
     public function show(string $id)
     {
 
-        $target = Target::with('quarters')->find($id);
-        return inertia("Mda/Target/ShowPage");
+        $target = Target::with([
+            'quarters',
+            'progress.evidence',
+            'milestones',
+        ])->find($id);
+
+        $last_progress = Progress::where('progressable_type', Target::class)
+        ->where('progressable_id', $target->id)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+        return inertia("Mda/Target/ShowPage", [
+            'target' => $target,
+            'last_progress' => $last_progress->progress_percent ?? 0
+        ]);
     }
 
     /**

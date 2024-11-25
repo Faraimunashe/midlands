@@ -64,7 +64,7 @@
             <div class="mb-6">
               <label for="evidence" class="block text-sm font-semibold text-gray-700">Evidence <code class="text-red-500">*</code></label>
               <input
-                ref="evidence"
+                @input="form.evidence = Array.from($event.target.files)"
                 type="file"
                 id="evidence"
                 multiple
@@ -123,32 +123,20 @@
       });
 
       const submit = () => {
-        const formData = new FormData();
-        formData.append("progress_percent", form.progress_percent);
-        formData.append("description", form.description);
-
-        // Attach each file as part of the 'evidence[]' array
-        const files = document.getElementById("evidence").files;
-        for (let i = 0; i < files.length; i++) {
-            formData.append("evidence[]", files[i]);
-        }
-
         form.post(`/targets/${props.targetId}/progress`, {
-            data: formData,
             preserveScroll: true,
-            onFinish: () => {
-            form.reset();
-            document.getElementById("evidence").value = ""; // Reset file input
-            snackbar.add({
-                type: "success",
-                text: "Progress uploaded successfully!",
-            });
+            onSuccess: () => {
+                snackbar.add({
+                    type: "success",
+                    text: "Progress uploaded successfully!",
+                });
+                form.reset();
             },
             onError: () => {
-            snackbar.add({
-                type: "error",
-                text: form.errors.error ?? "An error occurred. Please try again.",
-            });
+                snackbar.add({
+                    type: "error",
+                    text: form.errors.error ?? "An error occurred. Please try again.",
+                });
             },
         });
     };
@@ -157,15 +145,6 @@
         form.reset();
         document.getElementById("evidence").value = "";
       };
-
-      watch(() => form.errors, (errors) => {
-        if (errors) {
-          snackbar.add({
-            type: "error",
-            text: "Please fix the errors and try again.",
-          });
-        }
-      });
 
       return {
         form,

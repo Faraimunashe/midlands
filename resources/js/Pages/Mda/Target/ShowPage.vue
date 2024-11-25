@@ -145,7 +145,7 @@
                 <div
                 class="absolute inset-0 flex flex-col items-center justify-center text-green-500"
                 >
-                <span class="text-4xl font-bold">{{ lastProgress }}%</span>
+                <span class="text-4xl font-bold">{{ last_progress }}%</span>
                 <span class="text-sm text-gray-500">Completed</span>
                 </div>
             </div>
@@ -183,148 +183,160 @@
         </table>
       </div>
 
-      <!-- Milestones -->
-      <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
+            <!-- Milestones -->
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
         <div class="flex justify-between items-center mb-4">
-          <h3 class="text-2xl font-semibold text-gray-800">Milestones</h3>
-          <button
+            <h3 class="text-2xl font-semibold text-gray-800">Milestones</h3>
+            <button
+            v-if="target.milestones.length > 0"
             @click="addMilestone"
             class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition duration-200"
-          >
+            >
             <i class="fas fa-plus mr-2"></i>
             Add Milestone
-          </button>
+            </button>
         </div>
-        <table class="table-auto w-full text-left">
-          <thead class="bg-gray-100">
-            <tr>
-              <th class="px-4 py-2">Title</th>
-              <th class="px-4 py-2">Status</th>
-              <th class="px-4 py-2">Due Date</th>
-              <th class="px-4 py-2">Completed Date</th>
-              <th class="px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="milestone in target.milestones" :key="milestone.id" class="border-b">
-              <td class="px-4 py-2">{{ milestone.title }}</td>
-              <td class="px-4 py-2">{{ milestone.status }}</td>
-              <td class="px-4 py-2">{{ milestone.due_date }}</td>
-              <td class="px-4 py-2">{{ milestone.completed_date || 'N/A' }}</td>
-              <td class="px-4 py-2">
-                <button
-                  @click="editMilestone(milestone.id)"
-                  class="text-blue-600 hover:underline mr-2"
-                >
-                  <i class="fas fa-edit"></i>
-                  Edit
-                </button>
-                <button
-                  @click="deleteMilestone(milestone.id)"
-                  class="text-red-600 hover:underline"
-                >
-                  <i class="fas fa-trash"></i>
-                  Delete
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
 
-      <!-- Progress Trail -->
-      <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-semibold text-gray-800 mb-6">Progress Trail</h3>
-            <Link :href="'/targets/'+target.id+'/progress'"
-                class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-900 transition duration-200"
-                >
-                <i class="fas fa-plus mr-2"></i>
-                Update Progress
+        <!-- Milestones Table -->
+        <div v-if="target.milestones.length > 0">
+            <table class="table-auto w-full text-left">
+            <thead class="bg-gray-100">
+                <tr>
+                <th class="px-4 py-2">Title</th>
+                <th class="px-4 py-2">Status</th>
+                <th class="px-4 py-2">Due Date</th>
+                <th class="px-4 py-2">Completed Date</th>
+                <th class="px-4 py-2">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="milestone in target.milestones" :key="milestone.id" class="border-b">
+                <td class="px-4 py-2">{{ milestone.title }}</td>
+                <td class="px-4 py-2">{{ milestone.status }}</td>
+                <td class="px-4 py-2">{{ milestone.due_date }}</td>
+                <td class="px-4 py-2">{{ milestone.completed_date || 'N/A' }}</td>
+                <td class="px-4 py-2">
+                    <button
+                    @click="editMilestone(milestone.id)"
+                    class="text-blue-600 hover:underline mr-2"
+                    >
+                    <i class="fas fa-edit"></i>
+                    Edit
+                    </button>
+                    <button
+                    @click="deleteMilestone(milestone.id)"
+                    class="text-red-600 hover:underline"
+                    >
+                    <i class="fas fa-trash"></i>
+                    Delete
+                    </button>
+                </td>
+                </tr>
+            </tbody>
+            </table>
+        </div>
+
+        <!-- No Milestones Label -->
+        <div v-else class="text-gray-600 text-center py-6">
+            <p class="text-lg font-medium">This target does not use milestones.</p>
+        </div>
+        </div>
+
+
+      <div class="bg-white shadow-lg rounded-lg p-6">
+        <!-- Header -->
+        <div class="flex justify-between items-center mb-6">
+            <h3 class="text-2xl font-semibold text-gray-800">Progress Overview</h3>
+            <Link
+            :href="'/targets/' + target.id + '/progress'"
+            class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition duration-200">
+            <i class="fas fa-plus mr-2"></i>
+            Update Progress
             </Link>
         </div>
+
+        <!-- Progress Entries -->
         <div class="divide-y divide-gray-200">
-            <div v-for="entry in target.progress" :key="entry.id" class="py-4">
-            <div class="flex justify-between items-center">
-                <p class="text-lg font-semibold text-gray-800">{{ entry.created_at }}</p>
-                <span
-                :class="entry.is_approved ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'"
-                class="px-3 py-1 text-sm font-medium rounded-full"
-                >
-                {{ entry.is_approved ? 'Approved' : 'Pending' }}
-                </span>
-            </div>
-            <p class="text-sm text-gray-500 mt-1">Progress: {{ entry.progress_percent }}%</p>
-            <p class="text-sm text-gray-600 mt-2">{{ entry.progress_description }}</p>
-            </div>
-        </div>
-      </div>
-
-
-      <!-- Evidence -->
-      <div class="bg-white shadow-lg rounded-lg p-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-semibold text-gray-800">Evidence to progress</h3>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             <div
-            v-for="evidence in target.evidence"
-            :key="evidence.id"
-            class="relative bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-hidden"
-            >
-            <div class="p-4">
-                <!-- File Preview -->
-                <template v-if="evidence.file_type === 'image'">
-                <img
-                    :src="evidence.file_path"
-                    alt="Evidence"
-                    class="w-full h-48 object-cover rounded-md"
-                />
-                </template>
-                <template v-else-if="evidence.file_type === 'pdf'">
-                <div class="flex items-center justify-center w-full h-48 bg-red-100 rounded-md">
-                    <i class="fas fa-file-pdf text-red-500 text-6xl"></i>
-                </div>
-                </template>
-                <template v-else-if="evidence.file_type === 'zip'">
-                <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
-                    <i class="fas fa-file-archive text-gray-500 text-6xl"></i>
-                </div>
-                </template>
-                <template v-else>
-                <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
-                    <i class="fas fa-file-alt text-gray-500 text-6xl"></i>
-                </div>
-                </template>
+            v-for="entry in target.progress"
+            :key="entry.id"
+            class="py-6">
 
-                <!-- File Details -->
-                <div class="mt-4">
-                <h4 class="text-lg font-semibold text-gray-800 truncate">
-                    {{ evidence.description || 'No Description Provided' }}
-                </h4>
-                <p class="text-sm text-gray-500 truncate">
-                    <strong>Type:</strong> {{ evidence.file_type }}
-                </p>
+            <!-- Progress Details -->
+            <div class="mb-4">
+                <div class="flex justify-between items-center">
+                <div>
+                    <p class="text-lg font-semibold text-gray-800">{{ entry.created_at }}</p>
+                    <p class="text-sm text-gray-500 mt-1">Progress: {{ entry.progress_percent }}%</p>
                 </div>
+                <span
+                    :class="entry.is_approved ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'"
+                    class="px-3 py-1 text-sm font-medium rounded-full">
+                    {{ entry.is_approved ? 'Approved' : 'Pending' }}
+                </span>
+                </div>
+                <p class="text-sm text-gray-600 mt-2">{{ entry.progress_description }}</p>
             </div>
 
-            <!-- Actions -->
-            <div class="absolute top-2 right-2 flex space-x-2">
-                <a
-                :href="evidence.file_path"
-                target="_blank"
-                class="bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200"
-                title="View File"
-                >
-                <i class="fas fa-eye"></i>
-                </a>
-                <button
-                @click="deleteEvidence(evidence.id)"
-                class="bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
-                title="Delete File"
-                >
-                <i class="fas fa-trash"></i>
-                </button>
+            <!-- Evidence Section -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div
+                v-for="evidence in entry.evidence"
+                :key="evidence.id"
+                class="relative bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-hidden">
+
+                <!-- File Preview -->
+                <div class="p-4">
+                    <template v-if="evidence.file_type === 'image'">
+                    <img
+                        :src="evidence.file_path"
+                        alt="Evidence"
+                        class="w-full h-48 object-cover rounded-md" />
+                    </template>
+                    <template v-else-if="evidence.file_type === 'pdf'">
+                    <div class="flex items-center justify-center w-full h-48 bg-red-100 rounded-md">
+                        <i class="fas fa-file-pdf text-red-500 text-6xl"></i>
+                    </div>
+                    </template>
+                    <template v-else-if="evidence.file_type === 'zip'">
+                    <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
+                        <i class="fas fa-file-archive text-gray-500 text-6xl"></i>
+                    </div>
+                    </template>
+                    <template v-else>
+                    <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
+                        <i class="fas fa-file-alt text-gray-500 text-6xl"></i>
+                    </div>
+                    </template>
+
+                    <!-- File Details -->
+                    <div class="mt-4">
+                    <h4 class="text-lg font-semibold text-gray-800 truncate">
+                        {{ evidence.description || 'No Description Provided' }}
+                    </h4>
+                    <p class="text-sm text-gray-500 truncate">
+                        <strong>Type:</strong> {{ evidence.file_type }}
+                    </p>
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div class="absolute top-2 right-2 flex space-x-2">
+                    <a
+                    :href="evidence.file_path"
+                    target="_blank"
+                    class="bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200"
+                    title="View File">
+                    <i class="fas fa-eye"></i>
+                    </a>
+                    <button
+                    @click="deleteEvidence(evidence.id)"
+                    class="bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
+                    title="Delete File">
+                    <i class="fas fa-trash"></i>
+                    </button>
+                </div>
+                </div>
             </div>
             </div>
         </div>
@@ -337,37 +349,9 @@
 import Layout from '../../../Shared/Layout.vue';
   export default {
     layout: Layout,
-    data() {
-      return {
-        target: {
-          id: 1,
-          title: "Improve Education Standards",
-          description: "A comprehensive plan to improve education standards across all schools.",
-          status: "In Progress",
-          start_date: "2024-01-01",
-          end_date: "2024-12-31",
-          department: { id: 1, name: "Health & Childcare" },
-          quarters: [
-            { id: 1, name: "Q1", start_date: "2024-01-01", end_date: "2024-03-31" },
-            { id: 2, name: "Q2", start_date: "2024-04-01", end_date: "2024-06-30" },
-          ],
-          milestones: [
-            { id: 1, title: "Complete Curriculum Update", description: "Update the curriculum.", status: "Pending", due_date: "2024-03-31", completed_date: null },
-            { id: 2, title: "Teacher Training", description: "Train teachers for the new curriculum.", status: "Completed", due_date: "2024-06-30", completed_date: "2024-06-15" },
-          ],
-          progress: [
-            { id: 1, progress_percent: 50, progress_description: "Curriculum partially updated.", is_approved: false, created_at: "2024-11-01" },
-            { id: 2, progress_percent: 100, progress_description: "Training completed.", is_approved: true, created_at: "2024-11-10" },
-          ],
-          evidence: [
-            { id: 1, file_path: "files/curriculum_update.pdf", file_type: "PDF", description: "Curriculum update details." },
-            { id: 2, file_path: "files/training_photos.zip", file_type: "ZIP", description: "Photos from teacher training." },
-          ],
-        },
-        lastProgress: 75, // Example progress percentage
-        radius: 60,
-        dropdownOpen: false,
-      };
+    props: {
+        target: Object,
+        last_progress: String
     },
     methods: {
         toggleDropdown() {

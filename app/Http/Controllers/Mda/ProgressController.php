@@ -43,17 +43,37 @@ class ProgressController extends Controller
      */
     public function store(Request $request, string $id)
     {
+        //dd($request->all());
         $request->validate([
             'progress_percent' => ['required', 'integer'],
             'description' => ['required', 'string'],
-            'evidence' => ['array'],
-            'evidence.*' => ['file', 'max:2048', 'mimes:zip,jpg,jpeg,png,pdf,docx,xlx,xlxs,csv,mp3,mp4']
+            'evidence' => ['required','array'],
+            'evidence.*' => ['file', 'max:2048', 'mimes:zip,jpg,jpeg,png,pdf,docx,xls,xlsx,csv,mp3,mp4'],
         ]);
 
         try{
             $mda_data = $this->mdaRepository->getCurrentUserMdaAndDepartment();
 
             $target = Target::findOrFail($id);
+
+            $pending_progress = Progress::where('progressable_type', 'App\Models\Target')
+                ->where('progressable_id', $id)
+                ->where('is_approved', false)
+                ->first();
+
+            if ($pending_progress) {
+                return back()->withErrors(['error' => 'There is already unapproved progress for this target. Please wait for approval before submitting new progress.']);
+            }
+
+            $last_progress = Progress::where('progressable_type', Target::class)
+                ->where('progressable_id', $target->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!is_null($last_progress) && $last_progress->progress_percent >= $request->progress_percent) {
+                return back()->withErrors(['error' => 'Progress percentage must be greater than the last recorded progress percentage (' . $last_progress->progress_percent . '%).']);
+            }
+
 
             $progress = Progress::create([
                 'progressable_type' => 'App\Models\Target',
