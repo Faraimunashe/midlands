@@ -27,7 +27,7 @@
                     class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-blue-600 transition duration-200 flex items-center"
                 >
                     <i class="fas fa-sync-alt mr-2"></i>
-                    Update Progress
+                    Add Progress
                 </Link>
                 <button
                     class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 hover:text-green-600 transition duration-200 flex items-center"
@@ -183,165 +183,175 @@
         </table>
       </div>
 
+        <div class="bg-white shadow-lg rounded-lg p-6 mb-5">
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-6">
+                <h3 class="text-2xl font-semibold text-gray-800">Progress Overview</h3>
+                <Link :href="'/targets/' + target.id + '/progress'" class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition duration-200">
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Progress
+                </Link>
+            </div>
+
+            <!-- Progress Entries -->
+            <div v-if="target.progress.length > 0" class="divide-y divide-gray-200">
+                <div
+                v-for="entry in target.progress"
+                :key="entry.id"
+                class="py-6">
+
+                <!-- Progress Details -->
+                <div class="mb-4">
+                    <div class="flex justify-between items-center">
+                    <div>
+                        <p class="text-lg font-semibold text-gray-800">{{ entry.created_at }}</p>
+                        <p class="text-sm text-gray-500 mt-1">Progress: {{ entry.progress_percent }}%</p>
+                    </div>
+                    <span
+                        :class="entry.is_approved ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'"
+                        class="px-3 py-1 text-sm font-medium rounded-full">
+                        {{ entry.is_approved ? 'Approved' : 'Pending' }}
+                    </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2">{{ entry.progress_description }}</p>
+                </div>
+
+                <!-- Evidence Section -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div
+                    v-for="evidence in entry.evidence"
+                    :key="evidence.id"
+                    class="relative bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-hidden">
+
+                    <!-- File Preview -->
+                    <div class="p-4">
+                        <template v-if="evidence.file_type === 'image'">
+                            <img
+                                :src="evidence.file_path"
+                                alt="Evidence"
+                                class="w-full h-48 object-cover rounded-md" />
+                            </template>
+                        <template v-else-if="evidence.file_type === 'pdf'">
+                            <div class="flex items-center justify-center w-full h-48 bg-red-100 rounded-md">
+                                <i class="fas fa-file-pdf text-red-500 text-6xl"></i>
+                            </div>
+                        </template>
+                        <template v-else-if="evidence.file_type === 'zip'">
+                            <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
+                                <i class="fas fa-file-archive text-gray-500 text-6xl"></i>
+                            </div>
+                        </template>
+                        <template v-else-if="evidence.file_type === 'xls'">
+                            <div class="flex items-center justify-center w-full h-48 bg-green-100 rounded-md">
+                                <i class="fas fa-file-excel text-green-500 text-6xl"></i>
+                            </div>
+                        </template>
+                        <template v-else-if="evidence.file_type === 'ppt'">
+                            <div class="flex items-center justify-center w-full h-48 bg-orange-100 rounded-md">
+                                <i class="fas fa-file-powerpoint text-orange-500 text-6xl"></i>
+                            </div>
+                        </template>
+                        <template v-else-if="evidence.file_type === 'docx'">
+                            <div class="flex items-center justify-center w-full h-48 bg-blue-100 rounded-md">
+                                <i class="fas fa-file-word text-blue-500 text-6xl"></i>
+                            </div>
+                        </template>
+                        <template v-else>
+                            <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
+                                <i class="fas fa-file-alt text-gray-500 text-6xl"></i>
+                            </div>
+                        </template>
+
+                        <!-- File Details -->
+                        <div class="mt-4">
+                            <h4 class="text-lg font-semibold text-gray-800 truncate">
+                                {{ evidence.description || 'No Description Provided' }}
+                            </h4>
+                            <p class="text-sm text-gray-500 truncate">
+                                <strong>Type:</strong> {{ evidence.file_type }}
+                            </p>
+                        </div>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="absolute top-2 right-2 flex space-x-2">
+                        <a :href="'/evidences/'+evidence.id" target="_blank" class="bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200" title="View File">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                        <button
+                        @click="deleteEvidence(evidence.id)"
+                        class="bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
+                        title="Delete File">
+                        <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                    </div>
+                </div>
+                </div>
+            </div>
+            <div v-else class="text-gray-600 text-center py-6">
+                <p class="text-lg font-medium">There is no progress to show at the moment.</p>
+            </div>
+        </div>
+
             <!-- Milestones -->
         <div class="bg-white shadow-lg rounded-lg p-6 mb-6">
-        <div class="flex justify-between items-center mb-4">
-            <h3 class="text-2xl font-semibold text-gray-800">Milestones</h3>
-            <button
-            v-if="target.milestones.length > 0"
-            @click="addMilestone"
-            class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition duration-200"
-            >
-            <i class="fas fa-plus mr-2"></i>
-            Add Milestone
-            </button>
-        </div>
-
-        <!-- Milestones Table -->
-        <div v-if="target.milestones.length > 0">
-            <table class="table-auto w-full text-left">
-            <thead class="bg-gray-100">
-                <tr>
-                <th class="px-4 py-2">Title</th>
-                <th class="px-4 py-2">Status</th>
-                <th class="px-4 py-2">Due Date</th>
-                <th class="px-4 py-2">Completed Date</th>
-                <th class="px-4 py-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr v-for="milestone in target.milestones" :key="milestone.id" class="border-b">
-                <td class="px-4 py-2">{{ milestone.title }}</td>
-                <td class="px-4 py-2">{{ milestone.status }}</td>
-                <td class="px-4 py-2">{{ milestone.due_date }}</td>
-                <td class="px-4 py-2">{{ milestone.completed_date || 'N/A' }}</td>
-                <td class="px-4 py-2">
-                    <button
-                    @click="editMilestone(milestone.id)"
-                    class="text-blue-600 hover:underline mr-2"
-                    >
-                    <i class="fas fa-edit"></i>
-                    Edit
-                    </button>
-                    <button
-                    @click="deleteMilestone(milestone.id)"
-                    class="text-red-600 hover:underline"
-                    >
-                    <i class="fas fa-trash"></i>
-                    Delete
-                    </button>
-                </td>
-                </tr>
-            </tbody>
-            </table>
-        </div>
-
-        <!-- No Milestones Label -->
-        <div v-else class="text-gray-600 text-center py-6">
-            <p class="text-lg font-medium">This target does not use milestones.</p>
-        </div>
-        </div>
-
-
-      <div class="bg-white shadow-lg rounded-lg p-6">
-        <!-- Header -->
-        <div class="flex justify-between items-center mb-6">
-            <h3 class="text-2xl font-semibold text-gray-800">Progress Overview</h3>
-            <Link
-            :href="'/targets/' + target.id + '/progress'"
-            class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition duration-200">
-            <i class="fas fa-plus mr-2"></i>
-            Update Progress
-            </Link>
-        </div>
-
-        <!-- Progress Entries -->
-        <div class="divide-y divide-gray-200">
-            <div
-            v-for="entry in target.progress"
-            :key="entry.id"
-            class="py-6">
-
-            <!-- Progress Details -->
-            <div class="mb-4">
-                <div class="flex justify-between items-center">
-                <div>
-                    <p class="text-lg font-semibold text-gray-800">{{ entry.created_at }}</p>
-                    <p class="text-sm text-gray-500 mt-1">Progress: {{ entry.progress_percent }}%</p>
-                </div>
-                <span
-                    :class="entry.is_approved ? 'bg-green-100 text-green-600' : 'bg-yellow-100 text-yellow-600'"
-                    class="px-3 py-1 text-sm font-medium rounded-full">
-                    {{ entry.is_approved ? 'Approved' : 'Pending' }}
-                </span>
-                </div>
-                <p class="text-sm text-gray-600 mt-2">{{ entry.progress_description }}</p>
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-semibold text-gray-800">Milestones</h3>
+                <button
+                    v-if="target.milestones.length > 0"
+                    @click="addMilestone"
+                    class="bg-blue-600 text-white px-4 py-2 rounded shadow hover:bg-blue-700 transition duration-200"
+                >
+                    <i class="fas fa-plus mr-2"></i>
+                    Add Milestone
+                </button>
             </div>
 
-            <!-- Evidence Section -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div
-                v-for="evidence in entry.evidence"
-                :key="evidence.id"
-                class="relative bg-gray-50 border border-gray-200 rounded-lg shadow-md overflow-hidden">
-
-                <!-- File Preview -->
-                <div class="p-4">
-                    <template v-if="evidence.file_type === 'image'">
-                    <img
-                        :src="evidence.file_path"
-                        alt="Evidence"
-                        class="w-full h-48 object-cover rounded-md" />
-                    </template>
-                    <template v-else-if="evidence.file_type === 'pdf'">
-                    <div class="flex items-center justify-center w-full h-48 bg-red-100 rounded-md">
-                        <i class="fas fa-file-pdf text-red-500 text-6xl"></i>
-                    </div>
-                    </template>
-                    <template v-else-if="evidence.file_type === 'zip'">
-                    <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
-                        <i class="fas fa-file-archive text-gray-500 text-6xl"></i>
-                    </div>
-                    </template>
-                    <template v-else>
-                    <div class="flex items-center justify-center w-full h-48 bg-gray-100 rounded-md">
-                        <i class="fas fa-file-alt text-gray-500 text-6xl"></i>
-                    </div>
-                    </template>
-
-                    <!-- File Details -->
-                    <div class="mt-4">
-                    <h4 class="text-lg font-semibold text-gray-800 truncate">
-                        {{ evidence.description || 'No Description Provided' }}
-                    </h4>
-                    <p class="text-sm text-gray-500 truncate">
-                        <strong>Type:</strong> {{ evidence.file_type }}
-                    </p>
-                    </div>
-                </div>
-
-                <!-- Actions -->
-                <div class="absolute top-2 right-2 flex space-x-2">
-                    <a
-                    :href="evidence.file_path"
-                    target="_blank"
-                    class="bg-blue-600 text-white p-2 rounded-full shadow hover:bg-blue-700 transition duration-200"
-                    title="View File">
-                    <i class="fas fa-eye"></i>
-                    </a>
-                    <button
-                    @click="deleteEvidence(evidence.id)"
-                    class="bg-red-600 text-white p-2 rounded-full shadow hover:bg-red-700 transition duration-200"
-                    title="Delete File">
-                    <i class="fas fa-trash"></i>
-                    </button>
-                </div>
-                </div>
+            <!-- Milestones Table -->
+            <div v-if="target.milestones.length > 0">
+                <table class="table-auto w-full text-left">
+                <thead class="bg-gray-100">
+                    <tr>
+                    <th class="px-4 py-2">Title</th>
+                    <th class="px-4 py-2">Status</th>
+                    <th class="px-4 py-2">Due Date</th>
+                    <th class="px-4 py-2">Completed Date</th>
+                    <th class="px-4 py-2">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr v-for="milestone in target.milestones" :key="milestone.id" class="border-b">
+                    <td class="px-4 py-2">{{ milestone.title }}</td>
+                    <td class="px-4 py-2">{{ milestone.status }}</td>
+                    <td class="px-4 py-2">{{ milestone.due_date }}</td>
+                    <td class="px-4 py-2">{{ milestone.completed_date || 'N/A' }}</td>
+                    <td class="px-4 py-2">
+                        <button
+                        @click="editMilestone(milestone.id)"
+                        class="text-blue-600 hover:underline mr-2"
+                        >
+                        <i class="fas fa-edit"></i>
+                        Edit
+                        </button>
+                        <button
+                        @click="deleteMilestone(milestone.id)"
+                        class="text-red-600 hover:underline"
+                        >
+                        <i class="fas fa-trash"></i>
+                        Delete
+                        </button>
+                    </td>
+                    </tr>
+                </tbody>
+                </table>
             </div>
+
+            <!-- No Milestones Label -->
+            <div v-else class="text-gray-600 text-center py-6">
+                <p class="text-lg font-medium">This target does not use milestones.</p>
             </div>
         </div>
-        </div>
-
     </div>
   </template>
 
@@ -352,6 +362,11 @@ import Layout from '../../../Shared/Layout.vue';
     props: {
         target: Object,
         last_progress: String
+    },
+    data() {
+      return {
+        dropdownOpen: false,
+      };
     },
     methods: {
         toggleDropdown() {
@@ -385,16 +400,6 @@ import Layout from '../../../Shared/Layout.vue';
         deleteEvidence(id) {
             console.log(`Delete Evidence ${id} clicked`);
             // Implement the logic to delete the evidence.
-        },
-    },
-    computed: {
-        circumference() {
-            // Circumference of the circle (2 * π * radius)
-            return 2 * Math.PI * this.radius;
-        },
-        progressOffset() {
-            // Calculate the offset for the circular progress bar
-            return this.circumference * (1 - this.lastProgress / 100);
         },
     },
   };

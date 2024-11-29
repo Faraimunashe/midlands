@@ -19,7 +19,15 @@ class TargetController extends Controller
      */
     public function index(Request $request)
     {
+        $older = $request->older;
+        $search = $request->search;
+
         $targets = Target::with('department')->where('author_id', Auth::id())->paginate(20);
+
+        if(isset($older))
+        {
+            //Incomplete code
+        }
         return inertia("Mda/TargetsPage", [
             'targets' => $targets
         ]);

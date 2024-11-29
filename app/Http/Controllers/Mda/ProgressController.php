@@ -10,6 +10,7 @@ use App\Models\Target;
 use App\Repositories\MdaRepository;
 use Exception;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
 
 class ProgressController extends Controller
 {
@@ -88,7 +89,7 @@ class ProgressController extends Controller
             foreach ($request->file('evidence') as $file) {
                 $extension = $file->guessExtension();
                 $uniqueName = uniqid() . '_' . $file->getClientOriginalName();
-                $file->storeAs('uploads', $uniqueName);
+                $file->storeAs('uploads', $uniqueName, 'public');
 
                 Evidence::create([
                     'evidenceable_type' => 'App\Models\Progress',
@@ -113,7 +114,7 @@ class ProgressController extends Controller
      */
     public function show(string $id)
     {
-        //
+
     }
 
     /**

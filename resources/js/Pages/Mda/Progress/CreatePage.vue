@@ -7,11 +7,11 @@
         <div class="flex justify-between items-center">
           <h2 class="text-3xl font-semibold text-gray-800">Upload Progress</h2>
           <Link
-            href="/targets"
+            :href="'/targets/'+targetId"
             class="flex items-center bg-gray-600 text-white px-4 py-2 rounded shadow hover:bg-gray-700 transition duration-200"
           >
             <i class="fas fa-arrow-left mr-2"></i>
-            Back to Targets
+            Back to Target
           </Link>
         </div>
       </div>
